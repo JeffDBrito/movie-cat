@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Serviço para o backend Laravel
   backend:
@@ -8,15 +6,15 @@ services:
       dockerfile: Dockerfile
     container_name: backend-laravel
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     volumes:
       - ./backend:/var/www/html
     environment:
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_DATABASE=movie_cat
-      - DB_USERNAME=root
-      - DB_PASSWORD=root
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
     depends_on:
       - mysql
 
@@ -27,11 +25,13 @@ services:
       dockerfile: Dockerfile
     container_name: frontend-vue
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     volumes:
       - ./frontend:/app
     working_dir: /app
     command: npm run dev
+    environment:
+      - VUE_APP_BACKEND_URL=http://backend-laravel:${BACKEND_PORT:-8000}
     depends_on:
       - backend
 
@@ -40,10 +40,10 @@ services:
     image: mysql:8
     container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: movie_cat
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
     ports:
-      - "3306:3306"
+      - "${DB_PORT}:${DB_PORT}"
     volumes:
       - mysql_data:/var/lib/mysql
 

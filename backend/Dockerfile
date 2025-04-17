@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql mbstring zip gd
 
-# Instalação o Composer
+# Instalação do Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Definição do diretório de trabalho
@@ -27,8 +27,15 @@ COPY . .
 # Instala as dependências do Laravel
 RUN composer install
 
-# Expõe a porta 8000 para o Laravel
-EXPOSE 8000
+# Configura as variáveis de ambiente para o Laravel
+ENV DB_HOST=${DB_HOST}
+ENV DB_PORT=${DB_PORT}
+ENV DB_DATABASE=${DB_DATABASE}
+ENV DB_USERNAME=${DB_USERNAME}
+ENV DB_PASSWORD=${DB_PASSWORD}
+
+# Expõe a porta configurada no .env
+EXPOSE ${BACKEND_PORT:-8000}
 
 # Comando para iniciar o Laravel
-CMD php artisan serve --host=0.0.0.0 --port=8000
+CMD php artisan serve --host=0.0.0.0 --port=${BACKEND_PORT:-8000}

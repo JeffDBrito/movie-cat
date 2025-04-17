@@ -13,8 +13,11 @@ RUN npm install
 # Copia o restante dos arquivos do frontend para dentro do container
 COPY . .
 
-# Expõe a porta 5173
-EXPOSE 5173
+# Configura a variável de ambiente para o backend
+ENV VUE_APP_BACKEND_URL=http://backend-laravel:${BACKEND_PORT:-8000}
+
+# Expõe a porta configurada no .env para o frontend
+EXPOSE ${FRONTEND_PORT:-5173}
 
 # Comando para iniciar o frontend
 CMD ["npm", "run", "dev"]
