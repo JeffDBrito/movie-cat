@@ -1,8 +1,16 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { auth } from '../stores/auth'
 
 defineProps({
   msg: String,
+})
+
+onMounted(() => {
+  console.log('HelloWorld component mounted')
+  const authStore = auth()
+  authStore.isAuthenticated()
 })
 
 const count = ref(0)
