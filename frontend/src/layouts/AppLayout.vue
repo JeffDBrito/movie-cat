@@ -8,7 +8,7 @@ import axios from 'axios'
 const router = useRouter()
 const authStore = auth()
 
-onMounted( async () => {
+onMounted(async () => {
 
     // Verifica se o cookie de sessão do Laravel está presente
     if (document.cookie.includes('laravel_session')) {
@@ -16,7 +16,6 @@ onMounted( async () => {
         try {
             const { data } = await axios.get('/user', { withCredentials: true })
             authStore.setUser(data)
-            console.log('Usuário autenticado:', data)
         } catch (error) {
             // Se ocorrer um erro, verifica se o status é 401 (não autorizado) e, se for o caso, limpa o usuário do authStore
             if (error.response?.status === 401) {
@@ -28,9 +27,9 @@ onMounted( async () => {
     }
 
     // Verifica se o usuário está autenticado e redireciona para a página de login se não estiver
-    if (!authStore.isAuthenticated()) {
-        router.push(router.resolve({ name: 'login' }))
-    }
+    // if (!authStore.isAuthenticated()) {
+    //     router.push(router.resolve({ name: 'login' }))
+    // }
 })
 
 
@@ -38,69 +37,70 @@ onMounted( async () => {
 
 <template>
     <div class="layout text-center">
-      <header class="grid grid-cols-12 gap-4"> 
+        <header class="grid grid-cols-12 gap-4">
 
-        <!-- Home/Logo -->
-        <div class="col-span-3">
-            <div class="w-1/4 content-center m-auto">
-                <router-link to="/" class="m-auto">
-                    <img src="../assets/logo_branca.png" alt="Logo" class="mx-auto py-3" />
-                </router-link>
+            <!-- Home/Logo -->
+            <div class="col-span-3">
+                <div class="w-1/4 content-center m-auto">
+                    <router-link to="/" class="m-auto">
+                        <img src="../assets/logo_branca.png" alt="Logo" class="mx-auto py-3" />
+                    </router-link>
+                </div>
             </div>
-        </div>
 
-        <!-- Menu -->
-        <div class="col-span-6 content-center">
-            <nav class="flex justify-center space-x-4" v-if="authStore.isAuthenticated()">
-                <router-link to="/">Home</router-link>
-                <router-link to="/">Login</router-link>
-                <router-link to="/">Registrar</router-link>
-                <router-link to="/">Filmes</router-link>
-            </nav>
-        </div>
-
-        <!-- Login/Logout -->
-        <div class="col-span-3 content-center">
-            <div class="flex justify-center">
-                <router-link class="justify-center bg-white text-white rounded-lg px-2" to="/" v-if="!authStore.isAuthenticated()">Login</router-link>
-                <router-link class="justify-center bg-white text-white rounded-lg px-2" to="/" v-else @click="authStore.logout()">Logout</router-link>
+            <!-- Menu -->
+            <div class="col-span-6 content-center">
+                <nav class="flex justify-left space-x-4 text-white">
+                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Home</router-link>
+                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Filmes</router-link>
+                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Séries</router-link>
+                </nav>
             </div>
-        </div>
 
-      </header>
-  
-      <main>
-        <slot />
-      </main>
-  
-      <footer>
-        <p>Catálogo de filmes - Desenvolvido por <a href="https://www.linkedin.com/in/jefferson-brito-a462b117a/" target="_blank">Jefferson Brito</a></p>
-      </footer>
+            <!-- Login/Logout -->
+            <div class="col-span-3 content-center">
+                <div class="flex justify-center">
+                    <router-link class="justify-center text-white hover:bg-white hover:text-purple-800 rounded-lg px-3"
+                        to="/login" v-if="!authStore.isAuthenticated()">Login</router-link>
+                    <router-link class="justify-center text-white hover:bg-white hover:text-purple-800 rounded-lg px-3"
+                        to="/register" v-if="!authStore.isAuthenticated()">Cadastre-se</router-link>
+                    <router-link class="justify-center text-white hover:bg-red-400 hover:text-white rounded-lg px-3"
+                        to="/" v-else @click="authStore.logout()">Logout</router-link>
+                </div>
+            </div>
+
+        </header>
+
+        <main id="app-content">
+            <slot />
+        </main>
+
+        <footer>
+            <p>Catálogo de filmes - Desenvolvido por <a href="https://www.linkedin.com/in/jefferson-brito-a462b117a/" target="_blank">Jefferson Brito</a></p>
+        </footer>
     </div>
-  </template>
-  
-  <style scoped>
-  .layout {
-    padding: 20px;
-    /* max-width: 800px; */
+</template>
+
+<style scoped>
+.layout {
     margin-inline: 0 auto;
-  }
-  header{
-    position: fixed;
+}
+
+header {
     left: 0;
     top: 0;
-    background-color: #36013d;
-    width: 100%;  
-  }
-  footer {
+    background-color: #43004c;
+    width: 100%;
+}
+
+footer {
     font-size: 14px;
     padding: 10px;
     text-align: center;
     position: fixed;
     left: 0;
     bottom: 0;
-    background-color: #36013d;
-    width: 100%;  
-  }
-  </style>
-  
+    background-color: #43004c;
+    width: 100%;
+}
+</style>

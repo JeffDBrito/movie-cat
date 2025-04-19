@@ -1,11 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../pages/Login.vue'
-import HelloWorld from '../pages/HelloWorld.vue'
 import { auth } from '../stores/auth';
 
+import Login from '../pages/Login.vue'
+import Register from '../pages/Register.vue'
+import HelloWorld from '../pages/HelloWorld.vue'
+
 const routes = [
-    { path: '/', component: Login, name: 'login' },
-    { path: '/home', component: HelloWorld, name: 'home' },
+    { path: '/login', component: Login, name: 'login' },
+    { path: '/register', component: Register, name: 'register' },
+    { path: '/', component: HelloWorld, name: 'home' },
 ]
 
 export const router = createRouter({
@@ -14,18 +17,23 @@ export const router = createRouter({
     routes
 });
 
-router.beforeEach(async (to) => {
+router.beforeEach(async (to, from) => {
     // redirect to login page if not logged in and trying to access a restricted page
-    const publicPages = ['/'];
+    const publicPages = [
+        '/',
+        '/login',
+        '/register',
+    ];
     const authRequired = !publicPages.includes(to.path);
     const authInstance = auth();
-
+    
     if (authRequired && !authInstance.user) {
         authInstance.returnUrl = to.fullPath;
-        return '/';
-    } else if (to.path === '/') {
+        return '/login';
+    } else if (to.path === '/login') {
         if (authInstance.user) {
-            return '/home';
+            return '/';
         }
     }
+
 });
