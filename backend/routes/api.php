@@ -13,4 +13,4 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum')->name('logout');
 
 // User routes
-Route::post('/user/store', [UserController::class, 'store'])->middleware('auth:sanctum')->name('user.store');
+Route::post('/user/store', [UserController::class, 'store'])->name('user.store');
