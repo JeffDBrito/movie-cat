@@ -6,29 +6,36 @@ use App\Http\Controllers\Controller;
 use App\Models\Filme;
 use App\Models\User;
 use App\Services\TMDB;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class FilmeController extends Controller
 {
 
-    public function storeMovieById($tmdbId)
-    {
+    /**
+     * Registra um filme no banco de dados.
+     * @param array $tmdb_details
+     * @return mixed|JsonResponse
+     */
+    public function store($tmdb_details){
 
-        $service_tmdb = new TMDB();
-        $filme = $service_tmdb->getFilme($tmdbId);
+        try{
 
-        if ($filme) {
-            return Filme::updateOrCreate(
-                ['tmdb_id' => $tmdbId],
+            $filme = Filme::updateOrCreate(
+                ['tmdb_id' => $tmdb_details['id']],
                 [
-                    'title' => $filme['title'],
-                    'poster_path' => $filme['poster_path'],
-                    'tmdb_details' => $filme['tmdb_details'],
+                    'title' => $tmdb_details['title'],
+                    'poster_path' => $tmdb_details['poster_path'],
+                    'tmdb_details' => $tmdb_details,
                 ]
             );
+
+            return response()->json($filme, 201);
+
+        }catch (\Exception $e) {
+            return response()->json(['error' => 'Falha ao registrar filme.'], 500);
         }
 
-        return null;
     }
 
 }
