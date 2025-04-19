@@ -18,7 +18,6 @@ export const auth = defineStore('auth', () => {
 
         await axios.get('/user', { withCredentials: true, })
             .then((response) => {
-                console.log('User data fetched successfully:', response.data)
                 user.value = response.data
             })
             .catch((error) => {
@@ -37,13 +36,10 @@ export const auth = defineStore('auth', () => {
 
         axios.post('/api/logout', {}, {
             withCredentials: true,
+        })    
+        .catch((error) => {
+            console.error('Error during logout:', error)
         })
-            .then((response) => {
-                console.log('Logout successful:', response.data)
-            })
-            .catch((error) => {
-                console.error('Error during logout:', error)
-            })
 
         user.value = null
         token.value = null
