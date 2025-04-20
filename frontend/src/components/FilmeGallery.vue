@@ -128,6 +128,9 @@ const paginateNext = () => {
         </div>
 
         <div v-else class="bg-gray-800 rounded-lg p-4">    
+
+            <FilmePagination v-if="data.tipo === 'grid' && data.enablePagination" :pagination="data.pagination" @paginate-next="paginateNext" @paginate-prev="paginatePrev" class="flex justify-center mb-5"></FilmePagination>
+
             <!-- Para telas com menos de 640px de largura-->
             <div class="block sm:hidden md:hidden lg:hidden">
                 <FilmeCarrossel classe="max-w-lg" :filmes="data.filmes" tamanho="1/1"></FilmeCarrossel>
