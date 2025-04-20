@@ -15,7 +15,17 @@ const authStore = auth()
 
 const handleLogin = async () => {
 
+    error.value = null
+
     await axios.get('/sanctum/csrf-cookie')
+    .catch((e) => {
+        error.value = 'Erro ao obter o cookie CSRF. Verifique as configurações de ambiente ou sua base de dados.'
+        return e.response
+    })
+
+    if (error.value) {
+        return
+    }
     await axios.post('/api/login', {
         email: email.value,
         password: password.value

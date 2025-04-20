@@ -17,6 +17,8 @@ const authStore = auth()
 
 const handleRegister = async () => {
 
+    error.value = null
+
     if (password.value !== password_confirmation.value) {
         error.value = "As senhas não coincidem"
         return
@@ -36,6 +38,15 @@ const handleRegister = async () => {
 
     try {
         await axios.get('/sanctum/csrf-cookie')
+        .catch((e) => {
+            error.value = 'Erro ao obter o cookie CSRF. Verifique as configurações de ambiente ou sua base de dados.'
+            return e.response
+        })
+
+        if (error.value) {
+            return
+        }
+
         const response = await axios.post('/api/user/store', {
             name: name.value,
             email: email.value,
