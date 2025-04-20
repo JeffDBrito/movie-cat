@@ -1,12 +1,18 @@
 <script setup>
 
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '../stores/auth'
+import MovieCatLogo from '../components/MovieCatLogo.vue'
 import axios from 'axios'
 
 const router = useRouter()
 const authStore = auth()
+
+const showBurguerMenu = ref(false)
+const toggleBurguerMenu = () => {
+    showBurguerMenu.value = !showBurguerMenu.value
+}
 
 onMounted(async () => {
 
@@ -32,19 +38,53 @@ onMounted(async () => {
     // }
 })
 
-
 </script>
 
 <template>
     <div class="layout text-center">
-        <header class="grid grid-cols-12 gap-4">
+
+
+        <!-- Mobile Header -->
+        <header class="grid grid-cols-12 gap-4 md:hidden">
+            <!-- Home/Logo -->
+            <div class="col-span-3 col-span-3 content-center">
+                <movie-cat-logo cor="branca" :home="true" tamanho="w-100"></movie-cat-logo>
+            </div>
+
+            <!-- Burguer button -->
+
+            <div class="col-span-9 content-center pr-5">
+                <div class="flex justify-end">
+                    <button class="text-white hover:bg-white hover:text-purple-800 rounded-lg px-3"
+                        @click="toggleBurguerMenu()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 6h15M4.5 12h15m-15 6h15" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login/Logout  -->
+            <div v-if="showBurguerMenu"  class="col-span-12 content-center">
+                <div class="flex justify-center mb-5">
+                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Home</router-link>
+                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Filmes</router-link>
+                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Séries</router-link>
+                    <router-link class="justify-center text-white hover:bg-white hover:text-purple-800 rounded-lg px-3" to="/login" v-if="!authStore.isAuthenticated()">Login</router-link>
+                    <router-link class="justify-center text-white hover:bg-white hover:text-purple-800 rounded-lg px-3" to="/register" v-if="!authStore.isAuthenticated()">Cadastre-se</router-link>
+                    <router-link class="justify-center text-white hover:bg-red-400 hover:text-white rounded-lg px-3" to="/" v-else @click="authStore.logout()">Logout</router-link>
+                </div>
+            </div>
+        </header>
+
+        <!-- PC Header -->
+        <header class="grid grid-cols-12 gap-4 hidden md:grid">
 
             <!-- Home/Logo -->
             <div class="col-span-3">
                 <div class="w-1/4 content-center m-auto">
-                    <router-link to="/" class="m-auto">
-                        <img src="../assets/logo_branca.png" alt="Logo" class="mx-auto py-3" />
-                    </router-link>
+                    <movie-cat-logo cor="branca" :home="true" tamanho="w-100"></movie-cat-logo>
                 </div>
             </div>
 
@@ -75,7 +115,7 @@ onMounted(async () => {
             <slot />
         </main>
 
-        <footer>
+        <footer class="fixed bottom-0 w-full py-1">
             <p>Catálogo de filmes - Desenvolvido por <a href="https://www.linkedin.com/in/jefferson-brito-a462b117a/" target="_blank">Jefferson Brito</a></p>
         </footer>
     </div>
@@ -95,12 +135,6 @@ header {
 
 footer {
     font-size: 14px;
-    padding: 10px;
-    text-align: center;
-    position: fixed;
-    left: 0;
-    bottom: 0;
     background-color: #43004c;
-    width: 100%;
 }
 </style>
