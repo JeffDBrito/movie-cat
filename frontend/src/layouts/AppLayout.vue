@@ -69,8 +69,8 @@ onMounted(async () => {
             <div v-if="showBurguerMenu"  class="col-span-12 content-center">
                 <div class="flex justify-center mb-5">
                     <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Home</router-link>
-                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Filmes</router-link>
-                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Séries</router-link>
+                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/filmes">Filmes</router-link>
+                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/meus-filmes" v-if="authStore.isAuthenticated()">Meus Filmes</router-link>
                     <router-link class="justify-center text-white hover:bg-white hover:text-purple-800 rounded-lg px-3" to="/login" v-if="!authStore.isAuthenticated()">Login</router-link>
                     <router-link class="justify-center text-white hover:bg-white hover:text-purple-800 rounded-lg px-3" to="/register" v-if="!authStore.isAuthenticated()">Cadastre-se</router-link>
                     <router-link class="justify-center text-white hover:bg-red-400 hover:text-white rounded-lg px-3" to="/" v-else @click="authStore.logout()">Logout</router-link>
@@ -92,8 +92,8 @@ onMounted(async () => {
             <div class="col-span-6 content-center">
                 <nav class="flex justify-left space-x-4 text-white">
                     <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Home</router-link>
-                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Filmes</router-link>
-                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/">Séries</router-link>
+                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/filmes">Filmes</router-link>
+                    <router-link class="px-3 rounded hover:bg-white hover:text-purple-800 " to="/meus-filmes" v-if="authStore.isAuthenticated()">Meus Filmes</router-link>
                 </nav>
             </div>
 
@@ -129,12 +129,12 @@ onMounted(async () => {
 header {
     left: 0;
     top: 0;
-    background-color: #43004c;
+    background-color: #0000002e;
     width: 100%;
 }
 
 footer {
     font-size: 14px;
-    background-color: #43004c;
+    background-color: #0000002e;
 }
 </style>
