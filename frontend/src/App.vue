@@ -4,7 +4,9 @@ import AppLayout from './layouts/AppLayout.vue'
 </script>
 
 <template>
-    <AppLayout>
-      <router-view />
-    </AppLayout>
+    <UApp>
+      <AppLayout>
+        <router-view />
+      </AppLayout>
+    </UApp>
 </template>
