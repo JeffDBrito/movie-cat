@@ -46,4 +46,25 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function favoritos()
+    {
+        return $this->belongsToMany(Filme::class, 'favoritos', 'user_id', 'filme_id');
+    }
+
+    public function favoritar(Filme $filme)
+    {
+        return $this->favoritos()->attach($filme);
+    }
+
+    public function desfavoritar(Filme $filme)
+    {
+        return $this->favoritos()->detach($filme);
+    }
+
+    public function isFavoritado(Filme $filme)
+    {
+        return $this->favoritos()->where('filme_id', $filme->id)->exists();
+    }
+
 }
