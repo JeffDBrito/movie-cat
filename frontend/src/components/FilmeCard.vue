@@ -4,9 +4,9 @@
 import { ref, onMounted, defineProps } from 'vue'
 import { useRoute } from 'vue-router'
 import { auth } from '../stores/auth'
+import axios from 'axios'
 
 const authStore = auth()
-const route = useRoute()
 
 const props = defineProps({
 
@@ -21,6 +21,38 @@ const props = defineProps({
     },
 
 })
+
+function favoritar() {
+
+    props.filme.is_favorito = true
+    
+    axios.post('/api/filmes/favoritar', {
+        tmdb_id: props.filme.id
+    })
+    .then(response => {
+        console.log('Filme favoritado com sucesso:', response.data)
+    })
+    .catch(error => {
+        console.error('Erro ao favoritar filme:', error)
+    })
+
+}
+
+function desfavoritar() {
+
+    props.filme.is_favorito = false
+    
+    axios.post('/api/filmes/desfavoritar', {
+        tmdb_id: props.filme.id
+    })
+    .then(response => {
+        console.log('Filme desfavoritado com sucesso:', response.data)
+    })
+    .catch(error => {
+        console.error('Erro ao desfavoritar filme:', error)
+    })
+
+}
 
 </script>
 
@@ -46,9 +78,17 @@ const props = defineProps({
             <div class="grid grid-cols-6 items-center justify-center">
                 <button :class="`bg-purple-700 py-1 px-5 ${authStore.isAuthenticated() ? 'col-span-4' : 'col-span-6'}`">Mais</button>
                 <div v-if="authStore.isAuthenticated()" class="pl-4 col-span-2 text-center items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500 txt-center" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
-                    </svg>
+                    
+                    <!-- Favoritado -->
+                    <button v-if="filme.is_favorito" @click="desfavoritar()">
+                        <UIcon name="material-symbols-light:star" class="h-10 w-10 text-yellow-500" />
+                    </button>
+
+                    <!-- Não favoritado -->
+                    <button v-else @click="favoritar()">
+                        <UIcon name="material-symbols-light:star-outline" class="h-10 w-10 text-yellow-500" />
+                    </button>
+                    
                 </div>
             </div>
         </template>
