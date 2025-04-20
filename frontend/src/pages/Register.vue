@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { auth } from '../stores/auth'
+import MovieCatLogo from '../components/MovieCatLogo.vue'
 
 const name = ref('')
 const email = ref('')
@@ -59,16 +60,16 @@ const handleRegister = async () => {
 </script>
 <template>
 
-    <div class="register-container">
-        <div class="grid grid-cols-12 items-center justify-center">
-            <div class="col-span-6 content-center m-auto mr-10 px-10 border-r">
+    <div class="register-container lg:mt-20">
+        <div class="grid grid-cols-1 lg:grid-cols-12 items-center justify-center">
+            <div class="col-span-6 content-center m-auto mr-10 px-10 lg:border-r">
                 <div class="mb-5">
-                    <img src="../assets/logo_branca.png" alt="Logo" class="w-1/2 py-3 mx-auto mb-2" />
+                    <MovieCatLogo cor="branca" tamanho="1/2" />
                 </div>
-                <div class="text-center">
+                <div class="text-center hidden md:hidden lg:block">
                     <h2 class="text-2xl font-bold mb-4 mx-auto">Sistema de Gerenciamento de Filmes</h2>
                 </div>
-                <div class="mt-10">
+                <div class="mt-10 hidden sm:hidden md:hidden lg:block">
                     <p class="text-lg text-left mb-4 mx-auto">
                         Seja bem-vindo(a) ao nosso sistema de gerenciamento de filmes! 
                         <br>
@@ -80,7 +81,7 @@ const handleRegister = async () => {
                     </p>
                 </div>
             </div>
-            <div class="col-span-6 p-8 rounded shadow bg-white text-black register-conntent shadow-sm shadow-black">
+            <div class="col-span-6 p-8 rounded shadow bg-white text-black px-10 shadow-sm shadow-black">
                 <h2 class="text-2xl font-bold mb-4 mx-auto">Cadastro</h2>
                 <p v-if="error" class="error">{{ error }}</p>
                 <form @submit.prevent="handleRegister" class="grid grid-cols-1 gap-4 text-left">
@@ -113,14 +114,6 @@ const handleRegister = async () => {
 
 
 <style scoped>
-.register-container {
-    margin-top: 10%;
-}
-
-.register-conntent {
-    min-width: 500px;
-    padding-inline: 30px;
-}
 .error {
     color: red;
 }
