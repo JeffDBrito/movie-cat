@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
-
+use Illuminate\Support\Facades\Log;
 
 class TMDB {
     private $apiKey;
@@ -19,24 +19,28 @@ class TMDB {
 
     public function getFilme($tmdbId)
     {
+
         $url = "{$this->baseUrl}/movie/{$tmdbId}?api_key={$this->apiKey}&language=pt-BR";
 
-        $client = new Client();
+        try{
+            $client = new Client();
 
-        $response = $client->get($url);
+            $response = $client->get($url);
 
-        if ($response->getStatusCode() === 200) {
+            if ($response->getStatusCode() === 200) {
 
 
-            $data = json_decode($response->getBody(), true);
-            return [
-                'tmdb_id' => $data['id'],
-                'title' => $data['title'],
-                'poster_path' => $data['poster_path'],
-                'tmdb_details' => $data,
-            ];
+                $data = json_decode($response->getBody(), true);
+                return [
+                    'tmdb_id' => $data['id'],
+                    'title' => $data['title'],
+                    'poster_path' => $data['poster_path'],
+                    'tmdb_details' => $data,
+                ];
+            }
+        }catch (\Exception $e) {
+            Log::error("Erro ao buscar filme no TMDB: " . $e->getMessage());
+            return null;
         }
-        return null;
-
     }
 }
