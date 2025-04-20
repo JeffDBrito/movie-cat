@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@nuxt/ui": "^3.0.2",
     "@tailwindcss/vite": "^4.1.4",
     "axios": "^1.8.4",
     "pinia": "^3.0.2",

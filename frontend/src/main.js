@@ -5,6 +5,7 @@ import { router } from './router'
 import { createPinia } from 'pinia'
 import piniaPersistedstate from 'pinia-plugin-persistedstate'
 import axios from 'axios'
+import ui from '@nuxt/ui/vue-plugin'
 
 axios.defaults.withCredentials = true
 axios.defaults.withXSRFToken = true;
@@ -16,4 +17,5 @@ pinia.use(piniaPersistedstate)
 createApp(App)
     .use(pinia)
     .use(router)
+    .use(ui)
     .mount('#app')
