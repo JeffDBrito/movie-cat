@@ -10,9 +10,26 @@ it('verifica se a integração com o Tmdb Service está funcionando', function (
     $tmdbService = new TMDB();
     $response = $tmdbService->getFilme(68718);
 
-    expect($response['tmdb_details'])->toBeArray();
-    expect($response['tmdb_details'])->toHaveKey('original_title');
-    expect($response['tmdb_details']['original_title'])->toBe('Django Unchained');
+    expect($response)->toBeArray();
+    expect($response)->toHaveKey('original_title');
+    expect($response['original_title'])->toBe('Django Unchained');
 });
 
+it('verifica se é possível buscar filmes por categoria', function () {
+    $tmdbService = new TMDB();
+    $response = $tmdbService->getFilmesPorCategoria('popular');
 
+    expect($response['results'])->toBeArray();
+    expect($response['results'])->not()->toBeEmpty();
+    expect($response['results'][0])->toHaveKey('original_title');
+});
+
+it('verifica se é possível buscar filmes por título', function () {
+    $tmdbService = new TMDB();
+    $response = $tmdbService->buscarPorTitulo('Django Unchained');
+
+    expect($response['results'])->toBeArray();
+    expect($response['results'])->not()->toBeEmpty();
+    expect($response['results'][0])->toHaveKey('original_title');
+    expect($response['results'][0]['original_title'])->toBe('Django Unchained');
+});
