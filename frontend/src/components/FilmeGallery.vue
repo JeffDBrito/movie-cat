@@ -95,7 +95,7 @@ onMounted(() => {
     if(props.enableFilters){
         data.value.search_type = 'genero';
         data.value.filtros.genero = [12];
-        buscarPorGenero(1);
+        getFilmes(1, 'genero');
     }else{
         getFilmes(1);
     }
@@ -132,83 +132,26 @@ function filtrarGeneros(generos) {
     data.value.generos = formatados;
 }
 
-// Buscar filmes
-function buscarPorGenero(page) {
-    data.value.loading = true;
-    data.value.search_type = 'genero';
+function getFilmes(page, tipo = null) {
 
-    axios.get('/api/filmes/buscar/genero', {
+    let url = '';
+
+    if(tipo == 'genero'){
+        url = '/api/filmes/buscar/genero';
+    }else if(tipo == 'titulo'){
+        url = '/api/filmes/buscar/';
+    }else{
+        url = props.api_url;
+    }
+
+    data.value.loading = true;
+    axios.get(url, {
         params: {
             page: page,
             ano: data.value.filtros.ano,
             genero: data.value.filtros.genero,
-            ordem: data.value.filtros.ordem
-        }
-    })
-    .then(response => {
-        if(response.data.length === 0){
-            data.value.filmes = [];
-            data.value.loading = false;
-            return;
-        }
-
-        data.value.filmes = response.data.results;
-        data.value.pagination.currentPage = response.data.page
-        data.value.pagination.totalPages = response.data.total_pages
-        data.value.pagination.totalItems = response.data.total_results
-        data.value.pagination.itemsPerPage = response.data.results.length
-        data.value.loading = false;
-    })
-    .catch(error => {
-        console.error('Erro ao buscar filmes:', error);
-        data.value.filmes = [];
-    });
-
-}
-
-function buscarPorTitulo(page) {
-
-    if(data.value.filtros.titulo.length < 3){
-        return;
-    }
-
-    data.value.loading = true;
-    data.value.search_type = 'titulo';
-
-    axios.get('/api/filmes/buscar/', {
-        params: {
-            titulo: data.value.filtros.titulo,
-            page: page,
-        }
-    })
-    .then(response => {
-        if(response.data.length === 0){
-            data.value.filmes = [];
-            data.value.loading = false;
-            return;
-        }
-
-        data.value.filmes = response.data.results;
-        data.value.pagination.currentPage = response.data.page
-        data.value.pagination.totalPages = response.data.total_pages
-        data.value.pagination.totalItems = response.data.total_results
-        data.value.pagination.itemsPerPage = response.data.results.length
-        data.value.loading = false;
-    })
-    .catch(error => {
-        console.error('Erro ao buscar filmes:', error);
-        data.value.filmes = [];
-    });
-
-}
-
-function getFilmes(page) {
-
-    data.value.loading = true;
-    
-    axios.get(props.api_url, {
-        params: {
-            page: page
+            ordem: data.value.filtros.ordem,
+            pesquisa: data.value.filtros.pesquisa,
         }
     })
     .then(response => {
@@ -238,9 +181,9 @@ const paginatePrev = () => {
 
     data.value.pagination.currentPage--;
     if(props.enableFilters && data.value.search_type === 'genero'){
-        buscarPorGenero(data.value.pagination.currentPage);
-    }if(props.enableFilters && data.value.search_type === 'titulo'){
-        buscarPorTitulo(data.value.pagination.currentPage);
+        getFilmes(data.value.pagination.currentPage, 'genero');
+    }else if(props.enableFilters && data.value.search_type === 'titulo'){
+        getFilmes(data.value.pagination.currentPage, 'titulo');
     }else{
         getFilmes(data.value.pagination.currentPage);
     }
@@ -253,9 +196,9 @@ const paginateNext = () => {
 
     data.value.pagination.currentPage++;
     if(props.enableFilters && data.value.search_type === 'genero'){
-        buscarPorGenero(data.value.pagination.currentPage);
-    }if(props.enableFilters && data.value.search_type === 'titulo'){
-        buscarPorTitulo(data.value.pagination.currentPage);
+        getFilmes(data.value.pagination.currentPage, 'genero');
+    }else if (props.enableFilters && data.value.search_type === 'titulo'){
+        getFilmes(data.value.pagination.currentPage, 'titulo');
     }else{
         getFilmes(data.value.pagination.currentPage);
     }
@@ -294,7 +237,7 @@ const paginateNext = () => {
 
                 <div class="col-span-1 items-end ">
                     <br>
-                    <button @click="buscarPorGenero(1)" class="col-span-3 bg-purple-700 py-1 align-right px-3">Filtrar</button>
+                    <button @click="getFilmes(1,'genero')" class="col-span-3 bg-purple-700 py-1 align-right px-3">Filtrar</button>
                 </div>
             </div>
 
@@ -302,7 +245,7 @@ const paginateNext = () => {
             <!--  -->
             <div class="my-2 lg:my-0 col-span-4 grid grid-cols-12 gap-4 items-end">
                 <UInput icon="i-lucide-search"  v-model="data.filtros.titulo" type="text" placeholder="Buscar por título..." class="col-span-9"/>
-                <button @click="buscarPorTitulo(1)" class="col-span-3 bg-purple-700 py-1 align-right">Buscar</button>
+                <button @click="getFilmes(1,'titulo')" class="col-span-3 bg-purple-700 py-1 align-right">Buscar</button>
             </div>
 
         </div>
