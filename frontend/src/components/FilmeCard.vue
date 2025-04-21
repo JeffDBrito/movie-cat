@@ -22,6 +22,21 @@ const props = defineProps({
 
 })
 
+const data = ref({
+    image_url: '',
+})
+
+onMounted(() => {
+    if(props.filme.poster_path) {
+        data.value.image_url = `https://image.tmdb.org/t/p/w500${props.filme.poster_path}`
+    } else if(props.filme.backdrop_path) {
+        data.value.image_url = `https://image.tmdb.org/t/p/w500${props.filme.backdrop_path}`
+    } else {
+        data.value.image_url = 'https://placehold.co/500x750?text=Sem+Imagem&font=roboto&textsize=200&bg=000000&txtcolor=ffffff'
+    }
+    
+})
+
 function favoritar() {
 
     props.filme.is_favorito = true
@@ -61,7 +76,7 @@ function desfavoritar() {
     <UCard :class="`${ classe } h-full`">
         <template #header>
             <div class="">
-                <img :src="`https://image.tmdb.org/t/p/w500${filme.poster_path}`" alt="Filme Poster" class="w-full h-auto rounded-lg shadow-lg">
+                <img :src="data.image_url" alt="Filme Poster" class="w-full h-auto rounded-lg shadow-lg">
             </div>
         </template>
         
