@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Filme;
 
 use App\Http\Controllers\Controller;
 use App\Models\Filme;
+use App\Models\Genero;
 use App\Models\User;
 use App\Services\TMDB;
 use Auth;
@@ -40,9 +41,17 @@ class FilmeController extends Controller
                 ]
             );
 
+            if(sizeOf(Genero::all()) == 0){
+                $this->getGeneros();
+            }
+
+            $generos = Genero::where('id', $tmdb_details['genres']);
+            $filme->generos()->sync($generos->pluck('id'));
+
             return response()->json($filme, 201);
 
         }catch (\Exception $e) {
+            Log::error('Erro ao registrar filme: ' . $e->getMessage());
             return response()->json(['error' => 'Falha ao registrar filme.'], 500);
         }
 
@@ -57,12 +66,19 @@ class FilmeController extends Controller
     public function getGeneros(): JsonResponse
     {
         // Verifica se os gêneros estão em cache
-        $generos = [];
-        if(Cache::get('generos')){
-            $generos = Cache::get('generos');
+        $generos = Genero::all();
+
+        if($generos->isNotEmpty()){
+            return response()->json($generos, 200);
         }else{
             $generos = $this->tmdb->getGeneros();
-            Cache::put('generos', $generos, 60 * 24 * 60); // Cache por 60 dias
+
+            foreach ($generos['genres'] as $genero) {
+                Genero::updateOrCreate(
+                    ['id' => $genero['id']],
+                    ['name' => $genero['name']]
+                );
+            }
         }
 
         if (isset($generos['genres'])) {
@@ -160,6 +176,117 @@ class FilmeController extends Controller
         } else {
             return response()->json(['error' => 'Nenhum filme encontrado.'], 404);
         }
+    }
+
+    public function favoritosPorTitulo(Request $request): JsonResponse
+    {
+        $titulo = $request->input('titulo');
+        $page = $request->input('page', 1);
+
+        if (!$titulo) {
+            return response()->json(['error' => 'Título não fornecido.'], 400);
+        }
+
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Usuário não autenticado.'], 401);
+        }
+
+        $user_filmes = $user->favoritos()->where('title', 'like', '%' . $titulo . '%')->paginate();
+
+        $response = [];
+        foreach ($user_filmes as $filme) {
+
+            $generos = [];
+            foreach($filme->generos as $genero) {
+                $generos[] = $genero->id;
+            }
+
+            $response['page'] = $user_filmes->currentPage();
+            $response['total_pages'] = $user_filmes->lastPage();
+            $response['total_results'] = $user_filmes->total();
+            $response['results'][] = [
+                'id' => $filme->tmdb_id,
+                'title' => json_encode($filme->title, JSON_UNESCAPED_UNICODE),
+                'is_favorito' => true,
+                'poster_path' => $filme->poster_path,
+
+                'release_date' => $filme->tmdb_details['release_date'],
+                'overview' => $filme->tmdb_details['overview'],
+                'vote_average' => $filme->tmdb_details['vote_average'],
+                'vote_count' => $filme->tmdb_details['vote_count'],
+                'backdrop_path' => $filme->tmdb_details['backdrop_path'],
+                'original_language' => $filme->tmdb_details['original_language'],
+                'original_title' => $filme->tmdb_details['original_title'],
+                'genre_ids' => $generos,
+                'adult' => $filme->tmdb_details['adult'],
+                'video' => $filme->tmdb_details['video'],
+                'popularity' => $filme->tmdb_details['popularity'],
+            ];
+        }
+
+        return response()->json($response, 200);
+
+    }
+
+    /**
+     * Busca filmes favoritos por gênero.
+     * @param Request $request
+     * @param array $generos
+     * @return JsonResponse
+     */
+    public function favoritosPorGenero(Request $request): JsonResponse
+    {
+
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Usuário não autenticado.'], 401);
+        }
+
+        if(Genero::all()->isEmpty()){
+            $this->getGeneros();
+        }
+
+        $generos = $request->input('genero');
+        $page = $request->input('page', 1);
+
+        $user_filmes_id = auth()->user()->favoritos()->get()->pluck('id');
+
+        $filmes = Filme::whereIn('id',$user_filmes_id)
+        ->whereHas('generos', function ($query) use ($generos) {
+            if(!$generos){
+                return $query;
+            }
+            $query->whereIn('id', $generos);
+        })
+        ->paginate(10, ['*'], 'page', $page);
+
+        // Filtra os filmes favoritos do usuário
+        $response = [];
+        foreach ($filmes as $filme) {
+            $response['page'] = $filmes->currentPage();
+            $response['total_pages'] = $filmes->lastPage();
+            $response['total_results'] = $filmes->total();
+            $response['results'][] = [
+                'id' => $filme->tmdb_id,
+                'title' => json_encode($filme->title, JSON_UNESCAPED_UNICODE),
+                'is_favorito' => true,
+                'poster_path' => $filme->poster_path,
+
+                'release_date' => $filme->tmdb_details['release_date'],
+                'overview' => $filme->tmdb_details['overview'],
+                'vote_average' => $filme->tmdb_details['vote_average'],
+                'vote_count' => $filme->tmdb_details['vote_count'],
+                'backdrop_path' => $filme->tmdb_details['backdrop_path'],
+                'original_language' => $filme->tmdb_details['original_language'],
+                'original_title' => $filme->tmdb_details['original_title'],
+                'genre_ids' => $filme->tmdb_details['genres'],
+                'adult' => $filme->tmdb_details['adult'],
+                'video' => $filme->tmdb_details['video'],
+                'popularity' => $filme->tmdb_details['popularity'],
+            ];
+        }
+        return response()->json($response, 200);
     }
 
 // ====================== Métodos de favoritos
