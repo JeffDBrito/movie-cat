@@ -33,3 +33,21 @@ it('verifica se é possível buscar filmes por título', function () {
     expect($response['results'][0])->toHaveKey('original_title');
     expect($response['results'][0]['original_title'])->toBe('Django Unchained');
 });
+
+it('verifica se é possível buscar a lista de generos', function () {
+    $tmdbService = new TMDB();
+    $response = $tmdbService->getGeneros();
+
+    expect($response['genres'])->toBeArray();
+    expect($response['genres'])->not()->toBeEmpty();
+    expect($response['genres'][0])->toHaveKey('name');
+});
+
+it('verifica se é possível buscar filmes por genero', function () {
+    $tmdbService = new TMDB();
+    $response = $tmdbService->buscarPorGenero([28,12]);
+
+    expect($response['results'])->toBeArray();
+    expect($response['results'])->not()->toBeEmpty();
+    expect($response['results'][0])->toHaveKey('original_title');
+});
