@@ -83,7 +83,14 @@ const data = ref({
 onMounted(() => {
     data.value.tipo = props.tipo;
     data.value.enablePagination = props.enablePagination;
-    getGeneros();
+    
+    let generos = JSON.parse(localStorage.getItem('generos'));
+
+    if(generos) {
+        data.value.generos = generos;
+    } else {
+        getGeneros();
+    }        
     
     if(props.enableFilters){
         data.value.search_type = 'genero';
@@ -105,6 +112,7 @@ function getGeneros(){
     .then(response => {
         data.value.generos = response.data.genres;
         filtrarGeneros(data.value.generos);
+        localStorage.setItem('generos', JSON.stringify(data.value.generos));
     })
     .catch(error => {
         console.error('Erro ao buscar gêneros:', error);
@@ -138,6 +146,12 @@ function buscarPorGenero(page) {
         }
     })
     .then(response => {
+        if(response.data.length === 0){
+            data.value.filmes = [];
+            data.value.loading = false;
+            return;
+        }
+
         data.value.filmes = response.data.results;
         data.value.pagination.currentPage = response.data.page
         data.value.pagination.totalPages = response.data.total_pages
@@ -168,6 +182,12 @@ function buscarPorTitulo(page) {
         }
     })
     .then(response => {
+        if(response.data.length === 0){
+            data.value.filmes = [];
+            data.value.loading = false;
+            return;
+        }
+
         data.value.filmes = response.data.results;
         data.value.pagination.currentPage = response.data.page
         data.value.pagination.totalPages = response.data.total_pages
