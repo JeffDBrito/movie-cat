@@ -45,7 +45,7 @@ onMounted(() => {
     :arrows="arrows" 
     :autoplay="{ delay: 3000 }" 
     :items="filmes" 
-    :ui="{ item: 'basis-'+tamanho }" 
+    :ui="{ item: 'basis-'+props.tamanho }" 
     :prev="{ 
         variant: 'solid',
         class: 'rounded-full'
