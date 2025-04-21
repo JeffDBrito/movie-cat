@@ -13,7 +13,7 @@ const props = defineProps({
     },
     tamanho: {
         type: String,
-        default: ''
+        default: '1/5'
     },
     arrows: {
         type: Boolean,
@@ -30,8 +30,12 @@ const props = defineProps({
     
 })
 
+function formatarTamanho(tamanho){
+    return "basis-"+tamanho
+}
+
 onMounted(() => {
-    
+
 })
 
 </script>
@@ -45,7 +49,7 @@ onMounted(() => {
     :arrows="arrows" 
     :autoplay="{ delay: 3000 }" 
     :items="filmes" 
-    :ui="{ item: 'basis-'+props.tamanho }" 
+    :ui="{ item: formatarTamanho(tamanho) }" 
     :prev="{ 
         variant: 'solid',
         class: 'rounded-full'
