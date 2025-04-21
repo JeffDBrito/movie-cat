@@ -268,7 +268,7 @@ const paginateNext = () => {
 
     <div v-if="props.enableFilters" class="px-5 py-5 mb-10 bg-gray-800">
         <div class="text-right mb-5">
-            <a href="#" class="text-sm py-1 px-5 col-span-2">Limpar</a>
+            <a href="#" class="text-sm py-1 px-5 col-span-2" @click="limparFiltros()">Limpar</a>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12">
 
@@ -279,15 +279,15 @@ const paginateNext = () => {
                 </div>
             </div>
             
-            <div class="ml-5 col-span-2 grid grid-cols-1 items-end text-left">
+            <div class="my-2 lg:my-0 col-span-2 grid grid-cols-1 items-end text-left lg:ml-5">
                 <div class="grid grid-cols-1">
                     <label class="col-span-1">Ordem</label>
                     <USelect v-model="data.filtros.ordem" :items="data.ordem" value-key="id" class="col-span-2" />
                 </div>
             </div>
 
-            <div class="ml-5 col-span-3 grid grid-cols-2 gap-4 items-end text-left">
-                <div class="grid grid-cols-1">
+            <div class="my-2 lg:my-0 col-span-4 grid grid-cols-12 gap-4 lg:ml-5 lg:col-span-3 lg:grid-cols-2 lg:mr-2 items-end text-left">
+                <div class="grid col-span-3 lg:col-span-1">
                     <label class="col-span-1 pl-3">Ano:</label>
                     <UInput v-model="data.filtros.ano" type="number" placeholder="2025" min="1888" class="col-span-1"/>
                 </div>
@@ -300,7 +300,7 @@ const paginateNext = () => {
 
 
             <!--  -->
-            <div class="col-span-4 grid grid-cols-12 gap-4 items-end">
+            <div class="my-2 lg:my-0 col-span-4 grid grid-cols-12 gap-4 items-end">
                 <UInput icon="i-lucide-search"  v-model="data.filtros.titulo" type="text" placeholder="Buscar por título..." class="col-span-9"/>
                 <button @click="buscarPorTitulo(1)" class="col-span-3 bg-purple-700 py-1 align-right">Buscar</button>
             </div>
@@ -335,17 +335,20 @@ const paginateNext = () => {
         <div v-else class="bg-gray-800 rounded-lg p-4">    
 
             <FilmePagination v-if="data.tipo === 'grid' && data.enablePagination" :pagination="data.pagination" @paginate-next="paginateNext" @paginate-prev="paginatePrev" class="flex justify-center mb-5"></FilmePagination>
-
+            
+            <!-- Para telas com mais de 768px de largura e com o tipo grid -->
+            <FilmeGrid v-if="data.tipo === 'grid'" class="grid md:flex-row justify-between hidden sm:block md:block" :filmes="data.filmes"></FilmeGrid>
+            
             <!-- Para telas com menos de 640px de largura-->
-            <div class="block sm:hidden md:hidden lg:hidden">
+            <div v-if="data.tipo === 'grid'"  class="block sm:hidden md:hidden lg:hidden">
                 <FilmeCarrossel classe="max-w-lg" :filmes="data.filmes" tamanho="1/1"></FilmeCarrossel>
             </div>
             
             <!-- Para telas com menos de 768x de largura -->
-            <div class="hidden sm:block md:hidden lg:hidden">
+            <div v-if="data.tipo === 'carrossel'" class="hidden sm:block md:hidden lg:hidden">
                 <FilmeCarrossel classe="max-w-lg" :filmes="data.filmes" tamanho="1/3"></FilmeCarrossel>
             </div>
-            
+
             <!-- Para telas com mais de 768px de largura e com o tipo carrossel -->
             <div v-if="data.tipo === 'carrossel'" class="hidden md:block lg:hidden">
                 <FilmeCarrossel classe="max-w-270" :filmes="data.filmes" tamanho="1/3"></FilmeCarrossel>
@@ -355,9 +358,6 @@ const paginateNext = () => {
             <div v-if="data.tipo === 'carrossel'" class="hidden md:hidden lg:block">
                 <FilmeCarrossel classe="max-w-270" :filmes="data.filmes" tamanho="1/5"></FilmeCarrossel>
             </div>
-            
-            <!-- Para telas com mais de 768px de largura e com o tipo grid -->
-            <FilmeGrid v-if="data.tipo === 'grid'" class="grid md:flex-row justify-between hidden md:block" :filmes="data.filmes"></FilmeGrid>
 
             <FilmePagination v-if="data.tipo === 'grid' && data.enablePagination" :pagination="data.pagination" @paginate-next="paginateNext" @paginate-prev="paginatePrev" class="flex justify-center mt-4"></FilmePagination>
 
