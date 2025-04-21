@@ -82,11 +82,6 @@ const handleLogin = async () => {
                         <label class="font-bold m-0 p-0" for="password">Senha:</label>
                         <input class="border rounded px-2 p-2 border border-purple-400 bg-white" v-model="password" type="password" placeholder="Senha" required />
                     </div>
-                    <div>
-                        <p class="text-sm text-left mb-4 mx-auto">
-                            Esqueceu sua senha? <router-link to="/forgot-password" class="text-purple-600">Recuperar</router-link>
-                        </p>
-                    </div>
                     <button class="text-white bg-purple-600" type="submit">Entrar</button>
                     <div class="grid grid-cols-1 text-black">
                         <p class="text-sm text-left mb-4 mx-auto">
