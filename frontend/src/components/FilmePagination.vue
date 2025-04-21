@@ -26,7 +26,7 @@ const props = defineProps({
             </button>
         </div>
         <div class="col-span-2">
-            <span>Page {{ pagination.currentPage }} of {{ pagination.totalPages }}</span>
+            <span>Página {{ pagination.currentPage }} de {{ pagination.totalPages }}</span>
         </div>
         <div class="col-span-2">
             <button v-if="pagination.currentPage < pagination.totalPages" @click="$emit('paginate-next')" :disabled="pagination.currentPage === pagination.totalPages">
