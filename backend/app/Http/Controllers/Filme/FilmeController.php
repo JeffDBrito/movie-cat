@@ -264,6 +264,12 @@ class FilmeController extends Controller
         // Filtra os filmes favoritos do usuário
         $response = [];
         foreach ($filmes as $filme) {
+
+            $generos = [];
+            foreach($filme->generos as $genero) {
+                $generos[] = $genero->id;
+            }
+
             $response['page'] = $filmes->currentPage();
             $response['total_pages'] = $filmes->lastPage();
             $response['total_results'] = $filmes->total();
@@ -280,7 +286,7 @@ class FilmeController extends Controller
                 'backdrop_path' => $filme->tmdb_details['backdrop_path'],
                 'original_language' => $filme->tmdb_details['original_language'],
                 'original_title' => $filme->tmdb_details['original_title'],
-                'genre_ids' => $filme->tmdb_details['genres'],
+                'genre_ids' => $generos,
                 'adult' => $filme->tmdb_details['adult'],
                 'video' => $filme->tmdb_details['video'],
                 'popularity' => $filme->tmdb_details['popularity'],
