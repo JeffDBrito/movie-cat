@@ -9,6 +9,7 @@ use App\Services\TMDB;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class FilmeController extends Controller
@@ -55,7 +56,14 @@ class FilmeController extends Controller
      */
     public function getGeneros(): JsonResponse
     {
-        $generos = $this->tmdb->getGeneros();
+        // Verifica se os gêneros estão em cache
+        $generos = [];
+        if(Cache::get('generos')){
+            $generos = Cache::get('generos');
+        }else{
+            $generos = $this->tmdb->getGeneros();
+            Cache::put('generos', $generos, 60 * 24 * 60); // Cache por 60 dias
+        }
 
         if (isset($generos['genres'])) {
             return response()->json($generos, 200);
