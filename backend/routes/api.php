@@ -19,8 +19,10 @@ Route::post('/user/store', [UserController::class, 'store'])->name('user.store')
 // Filme routes
 Route::post('/filmes/store', [FilmeController::class, 'store'])->name('filmes.store');
 Route::get('/filmes/categoria/{categoria}', [FilmeController::class, 'filmesPorCategoria'])->name('filmes.categoria');
-Route::get('/filmes/buscar/{title}', [FilmeController::class, 'buscarPorTitulo'])->name('filmes.buscar');
 Route::post('/filmes/favoritar', [FilmeController::class, 'favoritar'])->name('filmes.favoritar');
 Route::post('/filmes/desfavoritar', [FilmeController::class, 'desfavoritar'])->name('filmes.desfavoritar');
+Route::get('/filmes/generos', [FilmeController::class, 'getGeneros'])->name('filmes.generos');
+Route::get('/filmes/buscar/', [FilmeController::class, 'buscarPorTitulo'])->name('filmes.buscar');
+Route::get('/filmes/buscar/genero', [FilmeController::class, 'buscarPorGenero'])->name('filmes.buscar.genero');
 
 
