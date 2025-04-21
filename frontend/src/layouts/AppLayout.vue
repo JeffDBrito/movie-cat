@@ -100,12 +100,12 @@ onMounted(async () => {
             <!-- Login/Logout -->
             <div class="col-span-3 content-center">
                 <div class="flex justify-center">
-                    <router-link class="justify-center text-white hover:bg-white hover:text-purple-800 rounded-lg px-3"
-                        to="/login" v-if="!authStore.isAuthenticated()">Login</router-link>
-                    <router-link class="justify-center text-white hover:bg-white hover:text-purple-800 rounded-lg px-3"
-                        to="/register" v-if="!authStore.isAuthenticated()">Cadastre-se</router-link>
-                    <router-link class="justify-center text-white hover:bg-red-400 hover:text-white rounded-lg px-3"
-                        to="/" v-else @click="authStore.logout()">Logout</router-link>
+                    <router-link class="justify-center text-white hover:bg-white hover:text-purple-800 rounded-lg px-3" to="/login" v-if="!authStore.isAuthenticated()">Login</router-link>
+                    <router-link class="justify-center text-white hover:bg-white hover:text-purple-800 rounded-lg px-3" to="/register" v-if="!authStore.isAuthenticated()">Cadastre-se</router-link>
+                    <div v-else class="flex justify-center">
+                        <p>Olá! {{ authStore.user.name }}</p>
+                        <router-link class="justify-center text-white hover:bg-red-400 hover:text-white rounded-lg px-3" to="/"  @click="authStore.logout()">Logout</router-link>
+                    </div>
                 </div>
             </div>
 
