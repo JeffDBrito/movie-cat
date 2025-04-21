@@ -111,7 +111,7 @@ onMounted(async () => {
 
         </header>
 
-        <main id="app-content">
+        <main id="app-content" class="flex justify-center">
             <slot />
         </main>
 
