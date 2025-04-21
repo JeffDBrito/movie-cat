@@ -7,6 +7,8 @@ import FilmeCarrossel from '../components/FilmeCarrossel.vue';
 import FilmePagination from './FilmePagination.vue';
 import axios from 'axios';
 
+const toast = useToast()
+
 const props = defineProps({
     tipo: {
         type: String,
@@ -35,6 +37,18 @@ const props = defineProps({
     enableFilters: {
         type: Boolean,
         default: false
+    },
+    enableOrdem: {
+        type: Boolean,
+        default: true
+    },
+    enableAno: {
+        type: Boolean,
+        default: true
+    },
+    source: {
+        type: String,
+        default: 'tmdb'
     }
     
 });
@@ -92,10 +106,10 @@ onMounted(() => {
         getGeneros();
     }        
     
-    if(props.enableFilters){
+    if(props.enableFilters && props.source != 'database'){
         data.value.search_type = 'genero';
         data.value.filtros.genero = [12];
-        buscarPorGenero(1);
+        getFilmes(1, 'genero');
     }else{
         getFilmes(1);
     }
@@ -132,83 +146,53 @@ function filtrarGeneros(generos) {
     data.value.generos = formatados;
 }
 
-// Buscar filmes
-function buscarPorGenero(page) {
-    data.value.loading = true;
+// Limpar filtros
+function limparFiltros() {
+    data.value.filtros.genero = [];
+    data.value.filtros.ano = null;
+    data.value.filtros.ordem = 'popularity.desc';
+    data.value.filtros.titulo = '';
     data.value.search_type = 'genero';
+    getFilmes(1, 'genero');
+}
 
-    axios.get('/api/filmes/buscar/genero', {
+/**
+ * Função para buscar os filmes dinâmicamente
+ */
+function getFilmes(page, tipo = null) {
+
+    if(tipo == 'titulo' && data.value.filtros.titulo == ''){
+        toast.add({
+            title: 'Atenção',
+            description: 'Você precisa informar um título para buscar.',
+            icon: 'material-symbols:check-rounded',
+            duration: 2000
+        })
+        return;
+    }
+
+    let url = '';
+
+    if(props.source == 'database' && tipo == 'genero'){
+        url = '/api/filmes/meus-filmes/buscar/genero'
+    }else if(props.source == 'database' && tipo == 'titulo'){
+        url = '/api/filmes/meus-filmes/buscar'
+    }else if(props.source == 'tmdb' && tipo == 'genero'){
+        url = '/api/filmes/buscar/genero';
+    }else if(props.source == 'tmdb' && tipo == 'titulo'){
+        url = '/api/filmes/buscar/';
+    }else{
+        url = props.api_url
+    }
+
+    data.value.loading = true;
+    axios.get(url, {
         params: {
             page: page,
             ano: data.value.filtros.ano,
             genero: data.value.filtros.genero,
-            ordem: data.value.filtros.ordem
-        }
-    })
-    .then(response => {
-        if(response.data.length === 0){
-            data.value.filmes = [];
-            data.value.loading = false;
-            return;
-        }
-
-        data.value.filmes = response.data.results;
-        data.value.pagination.currentPage = response.data.page
-        data.value.pagination.totalPages = response.data.total_pages
-        data.value.pagination.totalItems = response.data.total_results
-        data.value.pagination.itemsPerPage = response.data.results.length
-        data.value.loading = false;
-    })
-    .catch(error => {
-        console.error('Erro ao buscar filmes:', error);
-        data.value.filmes = [];
-    });
-
-}
-
-function buscarPorTitulo(page) {
-
-    if(data.value.filtros.titulo.length < 3){
-        return;
-    }
-
-    data.value.loading = true;
-    data.value.search_type = 'titulo';
-
-    axios.get('/api/filmes/buscar/', {
-        params: {
+            ordem: data.value.filtros.ordem,
             titulo: data.value.filtros.titulo,
-            page: page,
-        }
-    })
-    .then(response => {
-        if(response.data.length === 0){
-            data.value.filmes = [];
-            data.value.loading = false;
-            return;
-        }
-
-        data.value.filmes = response.data.results;
-        data.value.pagination.currentPage = response.data.page
-        data.value.pagination.totalPages = response.data.total_pages
-        data.value.pagination.totalItems = response.data.total_results
-        data.value.pagination.itemsPerPage = response.data.results.length
-        data.value.loading = false;
-    })
-    .catch(error => {
-        console.error('Erro ao buscar filmes:', error);
-        data.value.filmes = [];
-    });
-
-}
-
-function getFilmes(page) {
-
-    data.value.loading = true;
-    
-    axios.get(props.api_url, {
-        params: {
-            page: page
         }
     })
     .then(response => {
@@ -224,7 +208,6 @@ function getFilmes(page) {
         
     })
     .catch(error => {
-        console.error('Erro ao buscar filmes:', error);
         data.value.loading = false;
         data.value.filmes = [];
     });
@@ -238,9 +221,9 @@ const paginatePrev = () => {
 
     data.value.pagination.currentPage--;
     if(props.enableFilters && data.value.search_type === 'genero'){
-        buscarPorGenero(data.value.pagination.currentPage);
-    }if(props.enableFilters && data.value.search_type === 'titulo'){
-        buscarPorTitulo(data.value.pagination.currentPage);
+        getFilmes(data.value.pagination.currentPage, 'genero');
+    }else if(props.enableFilters && data.value.search_type === 'titulo'){
+        getFilmes(data.value.pagination.currentPage, 'titulo');
     }else{
         getFilmes(data.value.pagination.currentPage);
     }
@@ -253,9 +236,9 @@ const paginateNext = () => {
 
     data.value.pagination.currentPage++;
     if(props.enableFilters && data.value.search_type === 'genero'){
-        buscarPorGenero(data.value.pagination.currentPage);
-    }if(props.enableFilters && data.value.search_type === 'titulo'){
-        buscarPorTitulo(data.value.pagination.currentPage);
+        getFilmes(data.value.pagination.currentPage, 'genero');
+    }else if (props.enableFilters && data.value.search_type === 'titulo'){
+        getFilmes(data.value.pagination.currentPage, 'titulo');
     }else{
         getFilmes(data.value.pagination.currentPage);
     }
@@ -268,7 +251,7 @@ const paginateNext = () => {
 
     <div v-if="props.enableFilters" class="px-5 py-5 mb-10 bg-gray-800">
         <div class="text-right mb-5">
-            <a href="#" class="text-sm py-1 px-5 col-span-2">Limpar</a>
+            <a href="#" class="text-sm py-1 px-5 col-span-2" @click="limparFiltros()">Limpar</a>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12">
 
@@ -279,30 +262,30 @@ const paginateNext = () => {
                 </div>
             </div>
             
-            <div class="ml-5 col-span-2 grid grid-cols-1 items-end text-left">
+            <div v-if="props.enableOrdem" class="my-2 lg:my-0 col-span-2 grid grid-cols-1 items-end text-left lg:ml-5">
                 <div class="grid grid-cols-1">
                     <label class="col-span-1">Ordem</label>
                     <USelect v-model="data.filtros.ordem" :items="data.ordem" value-key="id" class="col-span-2" />
                 </div>
             </div>
 
-            <div class="ml-5 col-span-3 grid grid-cols-2 gap-4 items-end text-left">
-                <div class="grid grid-cols-1">
+            <div class="my-2 lg:my-0 col-span-4 grid grid-cols-12 gap-4 lg:ml-5 lg:col-span-3 lg:grid-cols-2 lg:mr-2 items-end text-left">
+                <div v-if="props.enableAno" class="grid col-span-3 lg:col-span-1">
                     <label class="col-span-1 pl-3">Ano:</label>
                     <UInput v-model="data.filtros.ano" type="number" placeholder="2025" min="1888" class="col-span-1"/>
                 </div>
 
                 <div class="col-span-1 items-end ">
                     <br>
-                    <button @click="buscarPorGenero(1)" class="col-span-3 bg-purple-700 py-1 align-right px-3">Filtrar</button>
+                    <button @click="getFilmes(1,'genero')" class="col-span-3 bg-purple-700 py-1 align-right px-3">Filtrar</button>
                 </div>
             </div>
 
 
             <!--  -->
-            <div class="col-span-4 grid grid-cols-12 gap-4 items-end">
+            <div class="my-2 lg:my-0 col-span-4 grid grid-cols-12 gap-4 items-end">
                 <UInput icon="i-lucide-search"  v-model="data.filtros.titulo" type="text" placeholder="Buscar por título..." class="col-span-9"/>
-                <button @click="buscarPorTitulo(1)" class="col-span-3 bg-purple-700 py-1 align-right">Buscar</button>
+                <button @click="getFilmes(1,'titulo')" class="col-span-3 bg-purple-700 py-1 align-right">Buscar</button>
             </div>
 
         </div>
@@ -335,17 +318,20 @@ const paginateNext = () => {
         <div v-else class="bg-gray-800 rounded-lg p-4">    
 
             <FilmePagination v-if="data.tipo === 'grid' && data.enablePagination" :pagination="data.pagination" @paginate-next="paginateNext" @paginate-prev="paginatePrev" class="flex justify-center mb-5"></FilmePagination>
-
+            
+            <!-- Para telas com mais de 768px de largura e com o tipo grid -->
+            <FilmeGrid v-if="data.tipo === 'grid'" class="grid md:flex-row justify-between hidden sm:block md:block" :filmes="data.filmes"></FilmeGrid>
+            
             <!-- Para telas com menos de 640px de largura-->
-            <div class="block sm:hidden md:hidden lg:hidden">
+            <div v-if="data.tipo === 'grid'"  class="block sm:hidden md:hidden lg:hidden">
                 <FilmeCarrossel classe="max-w-lg" :filmes="data.filmes" tamanho="1/1"></FilmeCarrossel>
             </div>
             
             <!-- Para telas com menos de 768x de largura -->
-            <div class="hidden sm:block md:hidden lg:hidden">
+            <div v-if="data.tipo === 'carrossel'" class="hidden sm:block md:hidden lg:hidden">
                 <FilmeCarrossel classe="max-w-lg" :filmes="data.filmes" tamanho="1/3"></FilmeCarrossel>
             </div>
-            
+
             <!-- Para telas com mais de 768px de largura e com o tipo carrossel -->
             <div v-if="data.tipo === 'carrossel'" class="hidden md:block lg:hidden">
                 <FilmeCarrossel classe="max-w-270" :filmes="data.filmes" tamanho="1/3"></FilmeCarrossel>
@@ -355,9 +341,6 @@ const paginateNext = () => {
             <div v-if="data.tipo === 'carrossel'" class="hidden md:hidden lg:block">
                 <FilmeCarrossel classe="max-w-270" :filmes="data.filmes" tamanho="1/5"></FilmeCarrossel>
             </div>
-            
-            <!-- Para telas com mais de 768px de largura e com o tipo grid -->
-            <FilmeGrid v-if="data.tipo === 'grid'" class="grid md:flex-row justify-between hidden md:block" :filmes="data.filmes"></FilmeGrid>
 
             <FilmePagination v-if="data.tipo === 'grid' && data.enablePagination" :pagination="data.pagination" @paginate-next="paginateNext" @paginate-prev="paginatePrev" class="flex justify-center mt-4"></FilmePagination>
 

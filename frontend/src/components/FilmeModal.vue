@@ -85,7 +85,7 @@ onMounted(() => {
     :close="{ color: 'secondary', variant: 'outline', class: 'rounded-full'}" 
     :ui="{ width: 'md:max-w-4xl'}"
     >
-        <UButton label="Mais" color="white" class="bg-purple-700 py-1 px-5"/>
+        <UButton label="Mais" color="white" class="bg-purple-700 py-1 px-5 w-full justify-center "/>
         <template #body >
             <div class="grid grid-cols-2 gap-4" >
                 

@@ -19,9 +19,9 @@ const props = defineProps({
 
 <template>
 
-    <div id="filmes_content" >
-        <div class="grid grid-cols-2 grid-cols-2 md:grid-cols-4 lg:grid-cols-10 text-right col-span-12">
-            <FilmeCard v-for="filme in filmes" key="filme.id" classe="col-span-2 sm:col-span-1 md:col-span-1 lg:col-span-2 text-center bg-gray-900 mx-2" :filme="filme"></FilmeCard>
+    <div :id="classe" >
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 text-right col-span-12">
+            <FilmeCard v-for="filme in filmes" key="filme.id" classe="col-span-1 sm:col-span-1 md:col-span-1 lg:col-span-1 text-center bg-gray-900 mx-2" :filme="filme"></FilmeCard>
         </div>
     </div>
 

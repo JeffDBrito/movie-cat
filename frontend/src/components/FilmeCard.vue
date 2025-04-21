@@ -62,14 +62,11 @@ onMounted(() => {
         </div>
 
         <template #footer>
-            <div class="flex justify-between items-center">
-            
+            <div class="grid grid-cols-1 sm:flex justify-between items-center">
                 <FilmeModal :filme="filme"/>
-                <div class="grid grid-cols-6 items-center justify-center">
-                    <div v-if="authStore.isAuthenticated()" class="pl-4 col-span-2 text-center items-center justify-center">
-                        
-                        <Star :filme="filme" />
-                        
+                <div class="items-center justify-center">
+                    <div v-if="authStore.isAuthenticated()" class="pl-4 text-center items-center justify-center">
+                        <Star :filme="filme" />                        
                     </div>
                 </div>
             </div>
