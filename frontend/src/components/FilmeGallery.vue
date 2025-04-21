@@ -35,6 +35,18 @@ const props = defineProps({
     enableFilters: {
         type: Boolean,
         default: false
+    },
+    enableOrdem: {
+        type: Boolean,
+        default: true
+    },
+    enableAno: {
+        type: Boolean,
+        default: true
+    },
+    source: {
+        type: String,
+        default: 'tmdb'
     }
     
 });
@@ -132,16 +144,33 @@ function filtrarGeneros(generos) {
     data.value.generos = formatados;
 }
 
+// Limpar filtros
+function limparFiltros() {
+    data.value.filtros.genero = [];
+    data.value.filtros.ano = null;
+    data.value.filtros.ordem = 'popularity.desc';
+    data.value.filtros.titulo = '';
+    data.value.search_type = 'genero';
+    getFilmes(1, 'genero');
+}
+
+/**
+ * Função para buscar os filmes dinâmicamente
+ */
 function getFilmes(page, tipo = null) {
 
     let url = '';
 
-    if(tipo == 'genero'){
+    if(props.source == 'database' && tipo == 'genero'){
+        url = '/api/filmes/meus-filmes/buscar/genero'
+    }else if(props.source == 'database' && tipo == 'titulo'){
+        url = '/api/filmes/meus-filmes/buscar'
+    }else if(props.source == 'tmdb' && tipo == 'genero'){
         url = '/api/filmes/buscar/genero';
-    }else if(tipo == 'titulo'){
+    }else if(props.source == 'tmdb' && tipo == 'titulo'){
         url = '/api/filmes/buscar/';
     }else{
-        url = props.api_url;
+        url = props.api_url
     }
 
     data.value.loading = true;
@@ -151,7 +180,7 @@ function getFilmes(page, tipo = null) {
             ano: data.value.filtros.ano,
             genero: data.value.filtros.genero,
             ordem: data.value.filtros.ordem,
-            pesquisa: data.value.filtros.pesquisa,
+            titulo: data.value.filtros.titulo,
         }
     })
     .then(response => {
@@ -222,7 +251,7 @@ const paginateNext = () => {
                 </div>
             </div>
             
-            <div class="my-2 lg:my-0 col-span-2 grid grid-cols-1 items-end text-left lg:ml-5">
+            <div v-if="props.enableOrdem" class="my-2 lg:my-0 col-span-2 grid grid-cols-1 items-end text-left lg:ml-5">
                 <div class="grid grid-cols-1">
                     <label class="col-span-1">Ordem</label>
                     <USelect v-model="data.filtros.ordem" :items="data.ordem" value-key="id" class="col-span-2" />
@@ -230,7 +259,7 @@ const paginateNext = () => {
             </div>
 
             <div class="my-2 lg:my-0 col-span-4 grid grid-cols-12 gap-4 lg:ml-5 lg:col-span-3 lg:grid-cols-2 lg:mr-2 items-end text-left">
-                <div class="grid col-span-3 lg:col-span-1">
+                <div v-if="props.enableAno" class="grid col-span-3 lg:col-span-1">
                     <label class="col-span-1 pl-3">Ano:</label>
                     <UInput v-model="data.filtros.ano" type="number" placeholder="2025" min="1888" class="col-span-1"/>
                 </div>
