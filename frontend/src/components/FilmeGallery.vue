@@ -7,6 +7,8 @@ import FilmeCarrossel from '../components/FilmeCarrossel.vue';
 import FilmePagination from './FilmePagination.vue';
 import axios from 'axios';
 
+const toast = useToast()
+
 const props = defineProps({
     tipo: {
         type: String,
@@ -104,7 +106,7 @@ onMounted(() => {
         getGeneros();
     }        
     
-    if(props.enableFilters){
+    if(props.enableFilters && props.source != 'database'){
         data.value.search_type = 'genero';
         data.value.filtros.genero = [12];
         getFilmes(1, 'genero');
@@ -159,6 +161,16 @@ function limparFiltros() {
  */
 function getFilmes(page, tipo = null) {
 
+    if(tipo == 'titulo' && data.value.filtros.titulo == ''){
+        toast.add({
+            title: 'Atenção',
+            description: 'Você precisa informar um título para buscar.',
+            icon: 'material-symbols:check-rounded',
+            duration: 2000
+        })
+        return;
+    }
+
     let url = '';
 
     if(props.source == 'database' && tipo == 'genero'){
@@ -196,7 +208,6 @@ function getFilmes(page, tipo = null) {
         
     })
     .catch(error => {
-        console.error('Erro ao buscar filmes:', error);
         data.value.loading = false;
         data.value.filmes = [];
     });
