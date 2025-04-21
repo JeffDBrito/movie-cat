@@ -24,5 +24,7 @@ Route::post('/filmes/desfavoritar', [FilmeController::class, 'desfavoritar'])->n
 Route::get('/filmes/generos', [FilmeController::class, 'getGeneros'])->name('filmes.generos');
 Route::get('/filmes/buscar/', [FilmeController::class, 'buscarPorTitulo'])->name('filmes.buscar');
 Route::get('/filmes/buscar/genero', [FilmeController::class, 'buscarPorGenero'])->name('filmes.buscar.genero');
+Route::get('/filmes/meus-filmes/buscar/', [FilmeController::class, 'favoritosPorTitulo'])->name('filmes.buscar');
+Route::get('/filmes/meus-filmes/buscar/genero', [FilmeController::class, 'favoritosPorGenero'])->name('filmes.buscar.genero');
 
 
