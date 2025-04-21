@@ -27,6 +27,11 @@ class Filme extends Model
         return $this->belongsToMany(User::class, 'favoritos', 'filme_id', 'user_id');
     }
 
+    public function generos()
+    {
+        return $this->belongsToMany(Genero::class, 'filme_genero', 'filme_id', 'genero_id');
+    }
+
     public function favoritar(User $user)
     {
         return $this->favoritadoPor()->attach($user);
