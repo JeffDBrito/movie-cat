@@ -47,6 +47,23 @@ class FilmeController extends Controller
 
     }
 
+// ====================== Métodos de busca
+
+    /**
+     * Busca a lista de generos.
+     * @return JsonResponse
+     */
+    public function getGeneros(): JsonResponse
+    {
+        $generos = $this->tmdb->getGeneros();
+
+        if (isset($generos['genres'])) {
+            return response()->json($generos, 200);
+        } else {
+            return response()->json(['error' => 'Nenhum gênero encontrado.'], 404);
+        }
+    }
+
     /**
      * Retorna os filmes de uma categoria.
      * @param Request $request
@@ -65,39 +82,45 @@ class FilmeController extends Controller
         $page = $request->input('page', 1);
         $filmes = $this->tmdb->getFilmesPorCategoria($categoria, $page);
 
-        $response = [];
+        $response = $this->formatarFilmes($filmes, $user_filmes);
 
         if (isset($filmes['results'])) {
-            $response['results'] = [];
+            return response()->json($response, 200);
         } else {
             return response()->json(['error' => 'Nenhum filme encontrado.'], 404);
         }
+    }
 
-        // Formata a resposta e adiciona o campo is_favorito
-        foreach ($filmes['results'] as $filme) {
-            $response['page'] = $filmes['page'];
-            $response['total_pages'] = $filmes['total_pages'];
-            $response['total_results'] = $filmes['total_results'];
-            $response['results'][] = [
-                'id' => $filme['id'],
-                'title' => json_encode($filme['title'], JSON_UNESCAPED_UNICODE),
-                'poster_path' => $filme['poster_path'],
-                'is_favorito' => in_array($filme['id'], $user_filmes),
-                'release_date' => $filme['release_date'],
-                'overview' => $filme['overview'],
-                'vote_average' => $filme['vote_average'],
-                'vote_count' => $filme['vote_count'],
-                'backdrop_path' => $filme['backdrop_path'],
-                'original_language' => $filme['original_language'],
-                'original_title' => $filme['original_title'],
-                'genre_ids' => $filme['genre_ids'],
-                'adult' => $filme['adult'],
-                'video' => $filme['video'],
-                'popularity' => $filme['popularity'],
-            ];
+    /**
+     * Busca filmes por gênero.
+     * @param Request $request
+     * @param array $generos
+     * @return JsonResponse
+     */
+    public function buscarPorGenero(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $user_filmes = [];
+        if ($user) {
+            $user_filmes = $user->favoritos()->pluck('tmdb_id')->toArray();
         }
 
-        return response()->json($response, 200);
+        Log::info('Request: ',$request->all());
+        $generos = $request->input('genero');
+
+        $page = $request->input('page', 1);
+        $ano = $request->input('ano', null);
+        $adults = $request->input('adults', false);
+        $ordem = $request->input('ordem', 'popularity.desc');
+
+        $filmes = $this->tmdb->buscarPorGenero($generos, $page, $adults, $ano, $ordem);
+        $response = $this->formatarFilmes($filmes, $user_filmes);
+
+        if (isset($filmes['results'])) {
+            return response()->json($response, 200);
+        } else {
+            return response()->json(['error' => 'Nenhum filme encontrado.'], 404);
+        }
     }
 
     /**
@@ -106,17 +129,32 @@ class FilmeController extends Controller
      * @param string $title
      * @return JsonResponse
      */
-    public function buscarPorTitulo(string $title): JsonResponse
+    public function buscarPorTitulo(Request $request): JsonResponse
     {
+        $titulo = $request->input('titulo');
+        $page = $request->input('page', 1);
 
-        $filmes = $this->tmdb->buscarPorTitulo($title);
-
-        foreach ($filmes['results'] as $filme) {
-            $filme['title'] = json_encode($filme['title'], JSON_UNESCAPED_UNICODE);
+        if (!$titulo) {
+            return response()->json(['error' => 'Título não fornecido.'], 400);
         }
 
-        return response()->json($filmes, 200);
+        $user = Auth::user();
+        $user_filmes = [];
+        if ($user) {
+            $user_filmes = $user->favoritos()->pluck('tmdb_id')->toArray();
+        }
+
+        $filmes = $this->tmdb->buscarPorTitulo($titulo, $page);
+        $response = $this->formatarFilmes($filmes, $user_filmes);
+
+        if (isset($filmes['results'])) {
+            return response()->json($response, 200);
+        } else {
+            return response()->json(['error' => 'Nenhum filme encontrado.'], 404);
+        }
     }
+
+// ====================== Métodos de favoritos
 
     /**
      * Adiciona um filme aos favoritos do usuário.
@@ -195,4 +233,45 @@ class FilmeController extends Controller
         return response()->json(['message' => 'Filme removido dos favoritos.'], 200);
     }
 
+    /**
+     * Formata a resposta dos filmes.
+     * @param array $filmes
+     * @param array $user_filmes
+     * @return array
+     */
+    public function formatarFilmes($filmes, $user_filmes)
+    {
+        $response = [];
+
+        if (!isset($filmes['results'])) {
+            return $response;
+        }
+
+        // Formata os filmes e adiciona o atributo is_favorito
+
+        foreach ($filmes['results'] as $filme) {
+            $response['page'] = $filmes['page'];
+            $response['total_pages'] = $filmes['total_pages'];
+            $response['total_results'] = $filmes['total_results'];
+            $response['results'][] = [
+                'id' => $filme['id'],
+                'title' => json_encode($filme['title'], JSON_UNESCAPED_UNICODE),
+                'poster_path' => $filme['poster_path'],
+                'is_favorito' => in_array($filme['id'], $user_filmes),
+                'release_date' => $filme['release_date'],
+                'overview' => $filme['overview'],
+                'vote_average' => $filme['vote_average'],
+                'vote_count' => $filme['vote_count'],
+                'backdrop_path' => $filme['backdrop_path'],
+                'original_language' => $filme['original_language'],
+                'original_title' => $filme['original_title'],
+                'genre_ids' => $filme['genre_ids'],
+                'adult' => $filme['adult'],
+                'video' => $filme['video'],
+                'popularity' => $filme['popularity'],
+            ];
+        }
+
+        return $response;
+    }
 }
