@@ -6,6 +6,7 @@ import Register from '../pages/Register.vue'
 import HelloWorld from '../pages/Home.vue'
 
 import Filmes from '../pages/Filmes.vue'
+import MeusFilmes from '../pages/MeusFilmes.vue'
 
 const routes = [
     
@@ -19,7 +20,7 @@ const routes = [
 
     // Filmes routes
     { path: '/filmes', component: Filmes, name: 'filmes' },
-    { path: '/meus-filmes', component: Filmes, name: 'meus-filmes' },
+    { path: '/meus-filmes', component: MeusFilmes, name: 'meus-filmes' },
 
 ]
 
