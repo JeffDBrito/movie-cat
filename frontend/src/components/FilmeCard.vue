@@ -24,6 +24,7 @@ const props = defineProps({
 
 const data = ref({
     image_url: '',
+    release_date: '',
 })
 
 onMounted(() => {
@@ -34,6 +35,8 @@ onMounted(() => {
     } else {
         data.value.image_url = 'https://placehold.co/500x750?text=Sem+Imagem&font=roboto&textsize=200&bg=000000&txtcolor=ffffff'
     }
+
+    data.value.release_date = props.filme.release_date ? props.filme.release_date.split('-')[0] : 'N/A'
     
 })
 
@@ -80,11 +83,12 @@ function desfavoritar() {
             </div>
         </template>
         
-        <div class="relative bg-gray-900 bg-opacity-50 p-4 rounded-lg">
-
-            <div clas="row-span-1 text-left my-10">
-                <p class="font-bold text-lg line-clamp-2 h-[3.5rem]">{{filme.title}}</p>
-                <span class="text-sm text-left align-left">{{filme.release_date}}</span>
+        <div class="relative bg-gray-900 bg-opacity-50 rounded-lg">
+            <div clas="row-span-1">
+                <p class="font-bold text-lg line-clamp-2 h-[3.5rem]">{{filme.title.replaceAll("\"","")}}</p>
+                <div class="text-right">
+                    <span class="text-xs text-left align-left">{{data.release_date}}</span>
+                </div>
             </div>
 
         </div>
