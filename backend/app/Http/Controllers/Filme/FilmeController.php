@@ -45,8 +45,12 @@ class FilmeController extends Controller
                 $this->getGeneros();
             }
 
-            $generos = Genero::where('id', $tmdb_details['genres']);
-            $filme->generos()->sync($generos->pluck('id'));
+            $genero_ids = [];
+            foreach ($tmdb_details['genres'] as $genero) {
+                $genero_ids[] = $genero['id'];
+            }
+
+            $filme->generos()->sync($genero_ids);
 
             return response()->json($filme, 201);
 
@@ -129,7 +133,6 @@ class FilmeController extends Controller
             $user_filmes = $user->favoritos()->pluck('tmdb_id')->toArray();
         }
 
-        Log::info('Request: ',$request->all());
         $generos = $request->input('genero');
 
         $page = $request->input('page', 1);
